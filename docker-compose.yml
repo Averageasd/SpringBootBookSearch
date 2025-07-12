@@ -3,8 +3,8 @@ services:
     container_name: postgres
     image: postgres:latest
     environment:
-      POSTGRES_USER: ng
-      POSTGRES_PASSWORD: ngpass
+      POSTGRES_USER: ${LOCAL_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${LOCAL_POSTGRES_PASSWORD}
       ## store data inside this directory inside container
       PGDATA: /data/postgres
 

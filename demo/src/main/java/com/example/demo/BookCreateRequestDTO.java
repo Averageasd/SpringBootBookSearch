@@ -1,60 +1,25 @@
 package com.example.demo;
 
-public class BookCreateRequestDTO {
-    private String title;
-    private String description;
-    private int copies;
-    private double rating;
-    private String author;
+import jakarta.validation.constraints.*;
 
-    public BookCreateRequestDTO(){}
-    public BookCreateRequestDTO(String title, String description, int copies, double rating, String author) {
-        this.title = title;
-        this.description = description;
-        this.copies = copies;
-        this.rating = rating;
-        this.author = author;
-    }
+public record BookCreateRequestDTO(
+        @NotBlank(message = "title should not empty")
+        @Size(max = 50, message = "title should be 50 characters at most")
+        @Size(min = 3, message = "title should be at least 3 characters")
+        String title,
 
-    public String getTitle() {
-        return title;
-    }
+        @NotBlank(message = "description should not be empty")
+        @Size(max = 250, message = "description should be 250 characters at most")
+        String description,
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+        @Min(value = 1, message = "number of copies should be at least 1")
+        int copies,
 
-    public String getDescription() {
-        return description;
-    }
+        @DecimalMin(value = "0.0", inclusive = true, message = "rating must be at least 0.0")
+        @DecimalMax(value = "5.0", inclusive = true, message = "rating must be at most 5.0")
+        double rating,
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getCopies() {
-        return copies;
-    }
-
-    public void setCopies(int copies) {
-        this.copies = copies;
-    }
-
-    public double getRating() {
-        return rating;
-    }
-
-    public void setRating(double rating) {
-        this.rating = rating;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-
+        @NotBlank(message = "author should not be empty")
+        @Size(max = 50, message = "author should be 50 characters at most")
+        String author) {
 }

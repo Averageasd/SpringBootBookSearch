@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,21 +14,23 @@ public class BookController {
 
     private final BookService bookService;
 
-    public BookController(BookService bookService){
+    @Autowired
+    public BookController(BookService bookService) {
         this.bookService = bookService;
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<BookResponseDTO> getSingleBook(@PathVariable UUID id){
-        try{
-            if (!this.bookService.bookExist(id)){
-                throw new Exception();
+    public ResponseEntity<BookResponseDTO> getSingleBook(@PathVariable UUID id) {
+        try {
+            if (!this.bookService.bookExist(id)) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .build();
             }
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(this.bookService.getBook(id));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
@@ -35,26 +38,26 @@ public class BookController {
 
 
     }
+
     @GetMapping(path = "/all-books")
-    public List<BookEntity> getBooks(){
+    public List<BookEntity> getBooks() {
         return this.bookService.GetBooks();
     }
 
     @PostMapping(path = "/new-book")
-    public ResponseEntity<String> createBook(@RequestBody BookCreateRequestDTO bookCreateRequestDTO){
-        try{
+    public ResponseEntity<String> createBook(@RequestBody BookCreateRequestDTO bookCreateRequestDTO) {
+        try {
             BookEntity bookEntity = new BookEntity(
-                    bookCreateRequestDTO.getTitle(),
-                    bookCreateRequestDTO.getDescription(),
-                    bookCreateRequestDTO.getCopies(),
-                    bookCreateRequestDTO.getRating(),
-                    bookCreateRequestDTO.getAuthor()
+                    bookCreateRequestDTO.title(),
+                    bookCreateRequestDTO.description(),
+                    bookCreateRequestDTO.copies(),
+                    bookCreateRequestDTO.rating(),
+                    bookCreateRequestDTO.author()
             );
 
             this.bookService.insertNewBook(bookEntity);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        catch (Exception exception){
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception exception) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
@@ -62,15 +65,16 @@ public class BookController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable UUID id){
-        try{
-            if (!bookService.bookExist(id)){
-                throw new Exception();
+    public ResponseEntity<String> deleteBook(@PathVariable UUID id) {
+        try {
+            if (!bookService.bookExist(id)) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .build();
             }
             this.bookService.deleteBook(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-        catch (Exception exception){
+        } catch (Exception exception) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
