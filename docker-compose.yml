@@ -11,6 +11,7 @@ services:
     ## attach volume to internal postgres storage. so data will be safely stored inside db even if our machine crashes
     volumes:
       - db:/data/postgres
+      - shared_data:/shared
 
     ## 5332: host url
     ## 5432 : host postgres always listens on
@@ -34,6 +35,8 @@ services:
       - "5050:80"
     networks:
       - db-net
+    volumes:
+      - shared_data:/shared
     restart: unless-stopped
 
 networks:
@@ -43,3 +46,4 @@ networks:
     driver: bridge
 volumes:
   db:
+  shared_data:
