@@ -1,8 +1,10 @@
 package com.example.demo;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,7 +16,6 @@ public class BookController {
 
     private final BookService bookService;
 
-    @Autowired
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
@@ -35,13 +36,30 @@ public class BookController {
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
         }
-
-
     }
 
     @GetMapping(path = "/all-books")
-    public List<BookEntity> getBooks() {
-        return this.bookService.GetBooks();
+    public ResponseEntity<?> getBooks(
+            @Valid @ModelAttribute  BookPaginationSearchDTO bookPaginationSearchDTO,
+            BindingResult bindingResult) {
+        try{
+            if (bindingResult.hasErrors()){
+                List<String> errors = bindingResult.getFieldErrors().stream()
+                        .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                        .toList();
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(errors);
+            }
+
+            return ResponseEntity.ok(bookService.getPaginatedBooks(bookPaginationSearchDTO));
+        }
+        catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+
     }
 
     @PostMapping(path = "/new-book")

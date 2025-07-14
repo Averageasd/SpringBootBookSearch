@@ -57,6 +57,23 @@ BEGIN
 		END LOOP;
 	END IF;
 
+	sql := sql || format($f$
+		AND created_at >= %L AND created_at <= %L
+		$f$, COALESCE(min_created_at, '-infinity'::timestamptz), COALESCE(max_created_at, 'infinity'::timestamptz));
+	sort_column := COALESCE(sort_column, 'created_at');
+	sort_order := COALESCE(sort_order,'DESC');
+	IF sort_column = 'created_at' THEN
+		IF sort_order = 'DESC' THEN 
+			sql := sql ||
+				format ('ORDER BY rank DESC, created_at DESC
+				LIMIT 20 OFFSET %L', page * 20);
+		ELSIF sort_order = 'ASC' THEN 
+			sql := sql ||
+				format ('ORDER BY rank DESC, created_at ASC
+				LIMIT 20 OFFSET %L', page * 20);
+		END IF;
+	END IF;
+
 	IF min_copies IS NOT NULL AND max_copies IS NOT NULL THEN
 		IF min_copies = max_copies THEN
 			sql:= sql || format($f$ AND copies >= %L $f$, min_copies);
@@ -74,22 +91,6 @@ BEGIN
 	END IF;
 	
 	-- ranged query
-	sql := sql || format($f$
-		AND created_at >= %L AND created_at <= %L
-		$f$, COALESCE(min_created_at, '-infinity'::timestamptz), COALESCE(max_created_at, 'infinity'::timestamptz));
-	sort_column := COALESCE(sort_column, 'created_at');
-	sort_order := COALESCE(sort_order,'DESC');
-	IF sort_column = 'created_at' THEN
-		IF sort_order = 'DESC' THEN 
-			sql := sql ||
-				format ('ORDER BY rank DESC, created_at DESC
-				LIMIT 20 OFFSET %L', page * 20);
-		ELSIF sort_order = 'ASC' THEN 
-			sql := sql ||
-				format ('ORDER BY rank DESC, created_at ASC
-				LIMIT 20 OFFSET %L', page * 20);
-		END IF;
-	END IF;
 
 	IF sort_column = 'copies' THEN
 		IF sort_order = 'DESC' THEN 

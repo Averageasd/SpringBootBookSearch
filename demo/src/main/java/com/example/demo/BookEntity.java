@@ -2,6 +2,7 @@ package com.example.demo;
 
 import jakarta.persistence.*;
 
+import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public class BookEntity {
     private String title;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ", insertable = false, updatable = false)
-    private OffsetDateTime createdAt;
+    private Timestamp createdAt;
 
     @Column(length = 250, nullable = false)
     private String description;
@@ -55,11 +56,11 @@ public class BookEntity {
         this.title = title;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
