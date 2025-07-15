@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -58,12 +59,18 @@ public class BookService {
         return bookResponseDTOS;
     }
 
+    @Transactional
     public void insertNewBook(BookEntity bookEntity) {
         this.bookRepository.save(bookEntity);
     }
 
-    public void deleteBook(UUID bookId) {
-        this.bookRepository.deleteById(bookId);
+    @Transactional
+    public boolean deleteBook(UUID bookId) {
+        if (bookExist(bookId)){
+            this.bookRepository.deleteById(bookId);
+            return true;
+        }
+        return false;
     }
 
     public boolean bookExist(UUID id) {
@@ -82,6 +89,19 @@ public class BookService {
                 singleBookEntity.getRating(),
                 singleBookEntity.getAuthor()
         );
+    }
+
+    @Transactional
+    public boolean patchBook(UUID id, BookUpdateRequestDTO bookUpdateRequestDTO) {
+        Optional<BookEntity> bookEntityOptional = bookRepository.findById(id);
+        return bookEntityOptional.filter(bookEntity -> updateBookFields(bookEntity, bookUpdateRequestDTO)).isPresent();
+    }
+
+    private boolean updateBookFields(BookEntity bookEntity, BookUpdateRequestDTO bookUpdateRequestDTO){
+        bookEntity.setTitle(bookUpdateRequestDTO.title());
+        bookEntity.setDescription(bookUpdateRequestDTO.description());
+        bookRepository.save(bookEntity);
+        return true;
     }
 
 }
