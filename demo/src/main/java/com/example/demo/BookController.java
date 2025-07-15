@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -22,14 +23,15 @@ public class BookController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<BookResponseDTO> getSingleBook(@PathVariable UUID id) {
         try {
-            if (!this.bookService.bookExist(id)) {
+            BookResponseDTO bookResponseDTO = this.bookService.getBook(id);
+            if (bookResponseDTO == null) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .build();
             }
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(this.bookService.getBook(id));
+                    .body(bookResponseDTO);
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -39,10 +41,10 @@ public class BookController {
 
     @GetMapping(path = "/all-books")
     public ResponseEntity<?> getBooks(
-            @Valid @ModelAttribute  BookPaginationSearchDTO bookPaginationSearchDTO,
+            @Valid @ModelAttribute BookPaginationSearchDTO bookPaginationSearchDTO,
             BindingResult bindingResult) {
-        try{
-            if (bindingResult.hasErrors()){
+        try {
+            if (bindingResult.hasErrors()) {
                 List<String> errors = bindingResult.getFieldErrors().stream()
                         .map(e -> e.getField() + ": " + e.getDefaultMessage())
                         .toList();
@@ -52,8 +54,7 @@ public class BookController {
             }
 
             return ResponseEntity.ok(bookService.getPaginatedBooks(bookPaginationSearchDTO));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
@@ -81,15 +82,33 @@ public class BookController {
         }
     }
 
-    @DeleteMapping(path = "/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable UUID id) {
+    @PatchMapping(path = "/{id}")
+    public ResponseEntity<Void> patchBook(@PathVariable UUID id, @RequestBody BookUpdateRequestDTO bookUpdateRequestDTO) {
         try {
-            if (!bookService.bookExist(id)) {
+            if (!bookService.patchBook(id, bookUpdateRequestDTO)){
                 return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
+                        .status(HttpStatus.BAD_REQUEST)
                         .build();
             }
-            this.bookService.deleteBook(id);
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
+
+        } catch (Exception exception) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+    }
+
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable UUID id) {
+        try {
+            if (!this.bookService.deleteBook(id)) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .build();
+            }
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception exception) {
             return ResponseEntity
