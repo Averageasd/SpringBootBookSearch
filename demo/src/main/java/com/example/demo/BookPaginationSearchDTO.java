@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

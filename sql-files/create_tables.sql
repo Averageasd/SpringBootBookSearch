@@ -25,7 +25,7 @@ ADD COLUMN document tsvector GENERATED ALWAYS AS (
 
 CREATE INDEX IF NOT EXISTS idx_book_id ON book (id);
 CREATE INDEX IF NOT EXISTS idx_books_created_copies_rating
-ON book(created_at DESC, copies, rating);
+ON book(created_at, copies, rating, title);
 CREATE INDEX IF NOT EXISTS idx_book_fulltext ON book USING gin (document);
 
 CREATE INDEX IF NOT EXISTS book_title_trgm_idx ON book USING gin (title gin_trgm_ops);

@@ -3,7 +3,6 @@ package com.example.demo;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
