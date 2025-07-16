@@ -91,7 +91,6 @@ BEGIN
 				LIMIT 20 OFFSET %L', page * 20);
 	END IF;
 	
-	END IF;
 	IF sort_column = 'copies' THEN
 		IF sort_order = 'DESC' THEN 
 			sql := sql ||
