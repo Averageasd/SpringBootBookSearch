@@ -2,7 +2,7 @@ package com.example.demo;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -16,8 +16,8 @@ public class BookEntity {
     @Column(length = 50, nullable = false, unique = true)
     private String title;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ", insertable = false, updatable = false)
-    private Timestamp createdAt;
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(length = 250, nullable = false)
     private String description;
@@ -55,11 +55,11 @@ public class BookEntity {
         this.title = title;
     }
 
-    public Timestamp getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 

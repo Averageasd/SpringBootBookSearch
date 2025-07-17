@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -53,8 +54,9 @@ public class BookService {
             String author = (String) row.get("author");
             int copies = ((Number) row.get("copies")).intValue();
             double rating = ((Number) row.get("rating")).doubleValue();
-            Timestamp createdAt = (Timestamp) row.get("created_at");
-            bookResponseDTOS.add(new BookResponseDTO(id, title, createdAt, description, copies, rating, author));
+            Timestamp createdAt = ((Timestamp) row.get("created_at"));
+            LocalDateTime localCreatedAt = createdAt.toLocalDateTime();
+            bookResponseDTOS.add(new BookResponseDTO(id, title, localCreatedAt, description, copies, rating, author));
         }
         return bookResponseDTOS;
     }

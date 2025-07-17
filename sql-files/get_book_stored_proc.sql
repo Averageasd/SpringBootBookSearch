@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION public.search_books(
 	min_rating real DEFAULT 0.0,
 	max_rating real DEFAULT 5.0,
 	limit_rows integer DEFAULT 20)
-    RETURNS TABLE(id uuid, title character varying, description character varying, author character varying, copies integer, rating real, created_at timestamp with time zone, rank real) 
+    RETURNS TABLE(id uuid, title character varying, description character varying, author character varying, copies integer, rating real, created_at timestamp without time zone, rank real) 
     LANGUAGE 'plpgsql'
 
 AS $BODY$
