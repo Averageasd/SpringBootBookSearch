@@ -3,7 +3,7 @@ package com.example.demo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
 
 public record BookPaginationSearchDTO(
     @NotNull(message = "page must not be null")
@@ -20,10 +20,10 @@ public record BookPaginationSearchDTO(
     String searchTerm,
 
     @NotNull(message = "min created date cannot be null")
-    OffsetDateTime minCreatedAt,
+    Timestamp minCreatedAt,
 
     @NotNull(message = "max created date cannot be null")
-    OffsetDateTime maxCreatedAt,
+    Timestamp maxCreatedAt,
 
     @NotNull(message = "min copies cannot be null")
     Integer minCopies,

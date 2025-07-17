@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS book (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v1(),
 	title VARCHAR(50) NOT NULL,
 	description VARCHAR(250) NOT NULL,
-	created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+	created_at TIMESTAMP(0) DEFAULT now(),
 	copies INT NOT NULL, 
 	rating REAL NOT NULL,
 	author VARCHAR(50) NOT NULL,

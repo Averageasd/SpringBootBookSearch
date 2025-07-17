@@ -17,8 +17,8 @@ CREATE OR REPLACE FUNCTION public.search_books(
 	sort_column character varying DEFAULT 'created_at'::character varying,
 	sort_order character varying DEFAULT 'DESC'::character varying,
 	search_term text DEFAULT ''::text,
-	min_created_at timestamp with time zone DEFAULT '-infinity'::timestamp with time zone,
-	max_created_at timestamp with time zone DEFAULT 'infinity'::timestamp with time zone,
+	min_created_at timestamp DEFAULT '-infinity'::timestamp,
+	max_created_at timestamp DEFAULT 'infinity'::timestamp,
 	min_copies integer DEFAULT 0,
 	max_copies integer DEFAULT 0,
 	min_rating real DEFAULT 0.0,
@@ -89,6 +89,8 @@ BEGIN
 			sql := sql ||
 				format ('ORDER BY rank DESC, created_at ASC
 				LIMIT 20 OFFSET %L', page * 20);
+				
+		END IF;
 	END IF;
 	
 	IF sort_column = 'copies' THEN
@@ -132,5 +134,3 @@ BEGIN
 END;
 $BODY$;
 
-ALTER FUNCTION public.search_books(integer, character varying, character varying, text, timestamp with time zone, timestamp with time zone, integer, integer, real, real, integer)
-    OWNER TO ng;
