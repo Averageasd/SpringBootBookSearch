@@ -1,5 +1,11 @@
-package com.example.demo;
+package com.example.demo.controllers;
 
+import com.example.demo.dtos.BookCreateRequestDTO;
+import com.example.demo.dtos.BookPaginationSearchDTO;
+import com.example.demo.dtos.BookResponseDTO;
+import com.example.demo.dtos.BookUpdateRequestDTO;
+import com.example.demo.entities.BookEntity;
+import com.example.demo.services.BookService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
