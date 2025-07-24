@@ -2,6 +2,8 @@ package com.example.demo.repositories;
 
 import com.example.demo.dtos.BookPaginationSearchDTO;
 import com.example.demo.dtos.BookResponseDTO;
+import com.example.demo.entities.BookEntity;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.Timestamp;
@@ -57,5 +59,34 @@ public class BookCustomQueryRepositoryImpl implements BookCustomQueryRepository 
             bookResponseDTOS.add(new BookResponseDTO(id, title, localCreatedAt, description, copies, rating, author));
         }
         return bookResponseDTOS;
+    }
+
+    @Override
+    public boolean bookWithNameExist(String titleParam) {
+        String sql = "SELECT TOP 1 * FROM book b WHERE b.title = :title";
+        Map<String, Object> params = new HashMap<>();
+        params.put("title", titleParam);
+        RowMapper<BookEntity> bookEntityRowMapper = (row, rowNumber) -> {
+            UUID id = (UUID) row.getObject("id");
+            String title = (String) row.getObject("title");
+            String description = (String) row.getObject("description");
+            String author = (String) row.getObject("author");
+            int copies = ((Number) row.getObject("copies")).intValue();
+            double rating = ((Number) row.getObject("rating")).doubleValue();
+            Timestamp createdAt = ((Timestamp) row.getObject("created_at"));
+            LocalDateTime localCreatedAt = createdAt.toLocalDateTime();
+            BookEntity bookEntity = new BookEntity(title, description, copies, rating, author);
+            bookEntity.setId(id);
+            bookEntity.setCreatedAt(localCreatedAt);
+            return bookEntity;
+        };
+        BookEntity bookEntity = jdbcTemplate.queryForObject(
+                sql,
+                params,
+                bookEntityRowMapper);
+        if (bookEntity == null){
+            return false;
+        }
+        return bookEntity.getTitle().equals(titleParam);
     }
 }
