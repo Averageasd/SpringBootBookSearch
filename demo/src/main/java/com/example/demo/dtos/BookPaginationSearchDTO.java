@@ -1,5 +1,7 @@
 package com.example.demo.dtos;
 
+import com.example.demo.validations.ValidateBookSearchSortColumn;
+import com.example.demo.validations.ValidateBookSearchSortOrder;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -9,11 +11,14 @@ public record BookPaginationSearchDTO(
     @NotNull(message = "page must not be null")
     Integer page,
 
+    @NotBlank(message = "sort column must not be blank")
     @NotNull(message = "sort column must not be null")
+    @ValidateBookSearchSortColumn
     String sortColumn,
 
     @NotBlank(message = "sort order must not be blank")
     @NotNull(message = "sort order cannot be null")
+    @ValidateBookSearchSortOrder
     String sortOrder,
 
     @NotNull(message = "search term cannot be null")
