@@ -4,7 +4,6 @@ import com.example.demo.dtos.BookCreateRequestDTO;
 import com.example.demo.dtos.BookPaginationSearchDTO;
 import com.example.demo.dtos.BookResponseDTO;
 import com.example.demo.dtos.BookUpdateRequestDTO;
-import com.example.demo.entities.BookEntity;
 import com.example.demo.services.BookService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -28,98 +27,60 @@ public class BookController {
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<BookResponseDTO> getSingleBook(@PathVariable UUID id) {
-        try {
-            BookResponseDTO bookResponseDTO = this.bookService.getBook(id);
-            if (bookResponseDTO == null) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .build();
-            }
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(bookResponseDTO);
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .build();
-        }
+        BookResponseDTO bookResponseDTO = this.bookService.getBook(id);
+        return ResponseEntity.ok(bookResponseDTO);
     }
 
     @GetMapping(path = "/all-books")
     public ResponseEntity<?> getBooks(
             @Valid @ModelAttribute BookPaginationSearchDTO bookPaginationSearchDTO,
             BindingResult bindingResult) {
-        try {
-            if (bindingResult.hasErrors()) {
-                List<String> errors = bindingResult.getFieldErrors().stream()
-                        .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                        .toList();
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body(errors);
-            }
-
-            return ResponseEntity.ok(bookService.getPaginatedBooks(bookPaginationSearchDTO));
-        } catch (Exception e) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors().stream()
+                    .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                    .toList();
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .build();
+                    .body(errors);
         }
+        return ResponseEntity.ok(bookService.getPaginatedBooks(bookPaginationSearchDTO));
 
     }
 
     @PostMapping(path = "/new-book")
-    public ResponseEntity<String> createBook(@RequestBody BookCreateRequestDTO bookCreateRequestDTO) {
-        try {
-            BookEntity bookEntity = new BookEntity(
-                    bookCreateRequestDTO.title(),
-                    bookCreateRequestDTO.description(),
-                    bookCreateRequestDTO.copies(),
-                    bookCreateRequestDTO.rating(),
-                    bookCreateRequestDTO.author()
-            );
-
-            this.bookService.insertNewBook(bookEntity);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception exception) {
+    public ResponseEntity<?> createBook(@Valid @RequestBody BookCreateRequestDTO bookCreateRequestDTO,
+                                        BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors().stream()
+                    .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                    .toList();
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .build();
+                    .body(errors);
         }
+        bookService.insertNewBook(bookCreateRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PatchMapping(path = "/{id}")
-    public ResponseEntity<Void> patchBook(@PathVariable UUID id, @RequestBody BookUpdateRequestDTO bookUpdateRequestDTO) {
-        try {
-            if (!bookService.patchBook(id, bookUpdateRequestDTO)){
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .build();
-            }
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .build();
-
-        } catch (Exception exception) {
+    public ResponseEntity<?> patchBook(@PathVariable UUID id,
+                                       @Valid @RequestBody BookUpdateRequestDTO bookUpdateRequestDTO,
+                                       BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors().stream()
+                    .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                    .toList();
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .build();
+                    .body(errors);
         }
+        bookService.patchBook(id, bookUpdateRequestDTO);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable UUID id) {
-        try {
-            if (!this.bookService.deleteBook(id)) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .build();
-            }
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception exception) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .build();
-        }
+        bookService.deleteBook(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
