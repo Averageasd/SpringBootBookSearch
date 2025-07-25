@@ -2,19 +2,16 @@ package com.example.demo.repositories;
 
 import com.example.demo.customMappers.BookEntityMapper;
 import com.example.demo.dtos.BookPaginationSearchDTO;
-import com.example.demo.dtos.BookResponseDTO;
 import com.example.demo.entities.BookEntity;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class BookCustomQueryRepositoryImpl implements BookCustomQueryRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public BookCustomQueryRepositoryImpl(NamedParameterJdbcTemplate jdbcTemplate)    {
+    public BookCustomQueryRepositoryImpl(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -33,7 +30,6 @@ public class BookCustomQueryRepositoryImpl implements BookCustomQueryRepository 
                 ":min_rating, " +
                 ":max_rating" +
                 ")";
-        List<BookResponseDTO> bookResponseDTOS = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
         params.put("page", bookPaginationSearchDTO.page());
         params.put("sort_column", bookPaginationSearchDTO.sortColumn());

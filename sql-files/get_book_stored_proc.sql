@@ -36,12 +36,11 @@ BEGIN
 	split_terms := regexp_split_to_array(COALESCE(search_term, ''), '\s+');
 	ts_query := array_to_string(split_terms, ' | ');
 	RAISE NOTICE 'ts_query here %', ts_query;
-	sql := format($f$
+	sql := format('
 		SELECT id, title, description, author, copies, rating, created_at,
 			   ts_rank(document, plainto_tsquery(%L)) AS rank
 		FROM book
-		WHERE document @@ plainto_tsquery(%L) 
-	$f$, ts_query, ts_query);
+		WHERE (document @@ plainto_tsquery(%L)', ts_query, ts_query);
 
 	sql := sql || ' OR ';
 	IF array_length(split_terms, 1) = 0 THEN
@@ -57,25 +56,31 @@ BEGIN
 		END LOOP;
 	END IF;
 
+	sql := sql || ')';
+
 	sql := sql || format($f$
 		AND created_at >= %L AND created_at <= %L
 		$f$, COALESCE(min_created_at, '-infinity'::timestamptz), COALESCE(max_created_at, 'infinity'::timestamptz));
 	sort_column := COALESCE(sort_column, 'created_at');
 	sort_order := COALESCE(sort_order,'DESC');
 
+	RAISE NOTICE 'min copies % ', min_copies;
+	RAISE NOTICE 'max copies % ',  max_copies;
 	IF min_copies IS NOT NULL AND max_copies IS NOT NULL THEN
+		
 		IF min_copies = max_copies THEN
-			sql:= sql || format($f$ AND copies >= %L $f$, min_copies);
+			sql:= sql || format($f$ AND copies >= %s $f$, min_copies);
 		ELSIF max_copies > min_copies THEN
-			sql:= sql || format($f$ AND copies >= %L AND copies <= %L $f$, min_copies, max_copies);
+			RAISE NOTICE 'execute this part for ranged min_copies.';
+			sql:= sql || format($f$ AND copies >= %s AND copies <= %s $f$, min_copies, max_copies);
 		END IF;
 	END IF;
 
 	IF min_rating IS NOT NULL AND max_rating IS NOT NULL THEN
 		IF min_rating = max_rating THEN
-			sql:= sql || format($f$ AND rating >= %L $f$, min_rating);
+			sql:= sql || format($f$ AND rating >= %s $f$, min_rating);
 		ELSIF max_rating > min_rating THEN
-			sql:= sql || format($f$ AND rating >= %L AND rating <= %L $f$, min_rating, max_rating);
+			sql:= sql || format($f$ AND rating >= %s AND rating <= %s $f$, min_rating, max_rating);
 		END IF;
 	END IF;
 	
@@ -84,11 +89,11 @@ BEGIN
 		IF sort_order = 'DESC' THEN 
 			sql := sql ||
 				format ('ORDER BY rank DESC, created_at DESC
-				LIMIT 20 OFFSET %L', page * 20);
+				LIMIT 20 OFFSET %s', page * 20);
 		ELSIF sort_order = 'ASC' THEN 
 			sql := sql ||
 				format ('ORDER BY rank DESC, created_at ASC
-				LIMIT 20 OFFSET %L', page * 20);
+				LIMIT 20 OFFSET %s', page * 20);
 				
 		END IF;
 	END IF;
@@ -97,11 +102,11 @@ BEGIN
 		IF sort_order = 'DESC' THEN 
 			sql := sql ||
 				format ('ORDER BY rank DESC, copies DESC
-				LIMIT 20 OFFSET %L', page * 20);
+				LIMIT 20 OFFSET %s', page * 20);
 		ELSIF sort_order = 'ASC' THEN 
 			sql := sql ||
 				format ('ORDER BY rank DESC, copies ASC
-				LIMIT 20 OFFSET %L', page * 20);
+				LIMIT 20 OFFSET %s', page * 20);
 		END IF;
 	END IF;
 
@@ -109,11 +114,11 @@ BEGIN
 		IF sort_order = 'DESC' THEN 
 			sql := sql ||
 				format ('ORDER BY rank DESC, rating DESC
-				LIMIT 20 OFFSET %L', page * 20);
+				LIMIT 20 OFFSET %s', page * 20);
 		ELSIF sort_order = 'ASC' THEN 
 			sql := sql ||
 				format ('ORDER BY rank DESC, rating ASC
-				LIMIT 20 OFFSET %L', page * 20);
+				LIMIT 20 OFFSET %s', page * 20);
 		END IF;
 	END IF;
 
@@ -121,16 +126,29 @@ BEGIN
 		IF sort_order = 'DESC' THEN 
 			sql := sql ||
 				format ('ORDER BY rank DESC, title DESC
-				LIMIT 20 OFFSET %L', page * 20);
+				LIMIT 20 OFFSET %s', page * 20);
 		ELSIF sort_order = 'ASC' THEN 
 			sql := sql ||
 				format ('ORDER BY rank DESC, title ASC
-				LIMIT 20 OFFSET %L', page * 20);
+				LIMIT 20 OFFSET %s', page * 20);
 		END IF;
 	END IF;
-	
+
+	RAISE NOTICE '%', sql;
 	-- Return query result dynamically
 	RETURN QUERY EXECUTE sql;
 END;
 $BODY$;
+
+SELECT search_books(
+0, 
+'copies', 
+'DESC', 
+'', 
+'2025-07-01 00:00:00'::timestamp,
+'2025-07-24 23:59:59'::timestamp,
+1,
+5,
+0,
+5);
 

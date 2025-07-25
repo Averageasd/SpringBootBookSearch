@@ -5,6 +5,7 @@ import com.example.demo.dtos.BookPaginationSearchDTO;
 import com.example.demo.dtos.BookResponseDTO;
 import com.example.demo.dtos.BookUpdateRequestDTO;
 import com.example.demo.services.BookService;
+import com.example.demo.utils.BindingErrorMessagesUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,11 @@ import java.util.UUID;
 public class BookController {
 
     private final BookService bookService;
+    private final BindingErrorMessagesUtil bindingErrorMessagesUtil;
 
-    public BookController(BookService bookService) {
+    public BookController(BookService bookService, BindingErrorMessagesUtil bindingErrorMessagesUtil) {
         this.bookService = bookService;
+        this.bindingErrorMessagesUtil = bindingErrorMessagesUtil;
     }
 
     @GetMapping(path = "/{id}")
@@ -36,9 +39,7 @@ public class BookController {
             @Valid @ModelAttribute BookPaginationSearchDTO bookPaginationSearchDTO,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getFieldErrors().stream()
-                    .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                    .toList();
+            List<String> errors = bindingErrorMessagesUtil.getBindingErrorMessages(bindingResult);
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(errors);
@@ -51,9 +52,7 @@ public class BookController {
     public ResponseEntity<?> createBook(@Valid @RequestBody BookCreateRequestDTO bookCreateRequestDTO,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getFieldErrors().stream()
-                    .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                    .toList();
+            List<String> errors = bindingErrorMessagesUtil.getBindingErrorMessages(bindingResult);
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(errors);
@@ -67,9 +66,7 @@ public class BookController {
                                        @Valid @RequestBody BookUpdateRequestDTO bookUpdateRequestDTO,
                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getFieldErrors().stream()
-                    .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                    .toList();
+            List<String> errors = bindingErrorMessagesUtil.getBindingErrorMessages(bindingResult);
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(errors);

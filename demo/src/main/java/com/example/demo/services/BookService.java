@@ -69,7 +69,14 @@ public class BookService {
 
     public BookResponseDTO getBook(UUID id) {
         BookEntity singleBookEntity = getExistingBook(id);
-        return new BookResponseDTO(singleBookEntity.getId(), singleBookEntity.getTitle(), singleBookEntity.getCreatedAt(), singleBookEntity.getDescription(), singleBookEntity.getCopies(), singleBookEntity.getRating(), singleBookEntity.getAuthor());
+        return new BookResponseDTO(
+                singleBookEntity.getId(),
+                singleBookEntity.getTitle(),
+                singleBookEntity.getCreatedAt(),
+                singleBookEntity.getDescription(),
+                singleBookEntity.getCopies(),
+                singleBookEntity.getRating(),
+                singleBookEntity.getAuthor());
     }
 
     @Transactional
