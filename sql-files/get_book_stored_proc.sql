@@ -36,22 +36,22 @@ BEGIN
 	split_terms := regexp_split_to_array(COALESCE(search_term, ''), '\s+');
 	ts_query := array_to_string(split_terms, ' | ');
 	RAISE NOTICE 'ts_query here %', ts_query;
+	RAISE NOTICE 'split_terms %', split_terms;
 	sql := format('
 		SELECT id, title, description, author, copies, rating, created_at,
 			   ts_rank(document, plainto_tsquery(%L)) AS rank
 		FROM book
 		WHERE (document @@ plainto_tsquery(%L)', ts_query, ts_query);
 
-	sql := sql || ' OR ';
 	IF array_length(split_terms, 1) = 0 THEN
-		sql := sql || format ('title ILIKE %L OR author ILIKE %L OR description ILIKE %L', '%', '%', '%');
+		sql := sql || format (' OR title ILIKE %L OR author ILIKE %L OR description ILIKE %L', '%', '%', '%');
 	ELSE
 		FOR i IN 1 .. array_length(split_terms, 1) LOOP
 			IF split_terms[i] = '' THEN
 				RAISE NOTICE 'empty string';
-				sql := sql || format ('title ILIKE %L OR author ILIKE %L OR description ILIKE %L', '%', '%', '%');
+				sql := sql || format (' OR title ILIKE %L OR author ILIKE %L OR description ILIKE %L', '%', '%', '%');
 			ELSE
-				sql := sql || format('title ILIKE %L OR author ILIKE %L OR description ILIKE %L', '%' || split_terms[i] || '%', '%' || split_terms[i] || '%', '%' || split_terms[i] || '%');
+				sql := sql || format(' OR title ILIKE %L OR author ILIKE %L OR description ILIKE %L', '%' || split_terms[i] || '%', '%' || split_terms[i] || '%', '%' || split_terms[i] || '%');
 			END IF;
 		END LOOP;
 	END IF;
@@ -144,7 +144,7 @@ SELECT search_books(
 0, 
 'copies', 
 'DESC', 
-'', 
+'agent every', 
 '2025-07-01 00:00:00'::timestamp,
 '2025-07-24 23:59:59'::timestamp,
 1,
